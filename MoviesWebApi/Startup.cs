@@ -1,4 +1,6 @@
-﻿namespace MoviesWebApi
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace MoviesWebApi
 {
   public class Startup
   {
@@ -12,6 +14,10 @@
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddControllers();
+      services.AddDbContext<ApplicationDbContext>(options =>
+      {
+        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+      });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
