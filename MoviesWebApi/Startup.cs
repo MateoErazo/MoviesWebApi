@@ -18,6 +18,8 @@ namespace MoviesWebApi
       {
         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
       });
+
+      services.AddAutoMapper(typeof(Startup));
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
