@@ -39,7 +39,7 @@ namespace MoviesWebApi.Controllers
     }
 
     [HttpPost(Name = "createActor")]
-    public async Task<ActionResult> Create(ActorCreationDTO actorCreationDTO)
+    public async Task<ActionResult> Create([FromForm] ActorCreationDTO actorCreationDTO)
     {
       Actor actor = mapper.Map<Actor>(actorCreationDTO);
       dbContext.Add(actor);
@@ -49,7 +49,7 @@ namespace MoviesWebApi.Controllers
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> Update(int id, ActorCreationDTO actorCreationDTO)
+    public async Task<ActionResult> Update(int id, [FromForm] ActorCreationDTO actorCreationDTO)
     {
       bool actorExist = await dbContext.Actors.AnyAsync(x => x.Id == id);
       
