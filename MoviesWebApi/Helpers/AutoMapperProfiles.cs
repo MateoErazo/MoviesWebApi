@@ -10,6 +10,8 @@ namespace MoviesWebApi.Helpers
     public AutoMapperProfiles() {
       CreateMap<Gender, GenderDTO>().ReverseMap();
       CreateMap<GenderCreationDTO, Gender>();
+      CreateMap<Actor, ActorDTO>().ReverseMap();
+      CreateMap<ActorCreationDTO, Actor>();
     }
   }
 }
