@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoviesWebApi.Services;
 
 namespace MoviesWebApi
 {
@@ -20,6 +21,8 @@ namespace MoviesWebApi
       });
 
       services.AddAutoMapper(typeof(Startup));
+
+      services.AddTransient<IFileStorer, AzureFileStorer>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
