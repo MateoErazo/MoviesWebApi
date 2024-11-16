@@ -32,7 +32,7 @@ namespace MoviesWebApi.Controllers
       Actor actor = await dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
 
       if (actor == null) {
-        return NotFound($"Don't exist an actor with id {id}.");
+        return NotFound($"Don't exist an actor with id {id}. Please check and try again.");
       }
 
       return mapper.Map<ActorDTO>(actor);
@@ -55,7 +55,7 @@ namespace MoviesWebApi.Controllers
       
       if (!actorExist)
       {
-        return NotFound($"Don't exist an actor with id {id}.");
+        return NotFound($"Don't exist an actor with id {id}. Please check and try again.");
       }
 
       Actor actor = mapper.Map<Actor>(actorCreationDTO);
@@ -72,7 +72,7 @@ namespace MoviesWebApi.Controllers
 
       if (!actorExist)
       {
-        return NotFound($"Don't exist an actor with id {id}.");
+        return NotFound($"Don't exist an actor with id {id}. Please check and try again.");
       }
 
       dbContext.Remove(new Actor { Id = id});
