@@ -33,7 +33,7 @@ namespace MoviesWebApi.Controllers
 
       if(gender == null)
       {
-        return NotFound($"Don't exist a gender with id {id}.");
+        return NotFound($"Don't exist a gender with id {id}. Please check and try again.");
       }
 
       return mapper.Map<GenderDTO>(gender);
@@ -57,7 +57,7 @@ namespace MoviesWebApi.Controllers
       bool genderExist = await dbContext.Genders.AnyAsync(x => x.Id == id);
 
       if (!genderExist) {
-        return NotFound($"Don't exist a gender with id {id}.");
+        return NotFound($"Don't exist a gender with id {id}. Please check and try again.");
       }
 
       Gender gender = mapper.Map<Gender>(genderCreationDTO);
@@ -74,7 +74,7 @@ namespace MoviesWebApi.Controllers
 
       if (!genderExist)
       {
-        return NotFound($"Don't exist a gender with id {id}.");
+        return NotFound($"Don't exist a gender with id {id}. Please check and try again.");
       }
 
       dbContext.Remove(new Gender { Id = id});
