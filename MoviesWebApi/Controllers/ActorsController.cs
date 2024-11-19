@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesWebApi.DTOs;
 using MoviesWebApi.Entities;
+using MoviesWebApi.Services;
 
 namespace MoviesWebApi.Controllers
 {
@@ -12,11 +13,14 @@ namespace MoviesWebApi.Controllers
   {
     private readonly ApplicationDbContext dbContext;
     private readonly IMapper mapper;
+    private readonly IFileStorer fileStorer;
+    private readonly string containerName = "actors";
 
-    public ActorsController(ApplicationDbContext dbContext, IMapper mapper)
+    public ActorsController(ApplicationDbContext dbContext, IMapper mapper, IFileStorer fileStorer)
     {
       this.dbContext = dbContext;
       this.mapper = mapper;
+      this.fileStorer = fileStorer;
     }
 
     [HttpGet(Name = "getAllActors")]
@@ -42,6 +46,19 @@ namespace MoviesWebApi.Controllers
     public async Task<ActionResult> Create([FromForm] ActorCreationDTO actorCreationDTO)
     {
       Actor actor = mapper.Map<Actor>(actorCreationDTO);
+
+      if (actorCreationDTO.Picture != null)
+      {
+        using (MemoryStream ms = new MemoryStream())
+        {
+          await actorCreationDTO.Picture.CopyToAsync(ms);
+          byte[] content = ms.ToArray();
+          var extension = Path.GetExtension(actorCreationDTO.Picture.FileName);
+          actor.Picture = await fileStorer.SaveFileAsync(content:content,extension:extension,
+            container:containerName,contentType:actorCreationDTO.Picture.ContentType);
+        }
+      }
+
       dbContext.Add(actor);
       await dbContext.SaveChangesAsync();
       ActorDTO actorDTO = mapper.Map<ActorDTO>(actor);
@@ -51,16 +68,27 @@ namespace MoviesWebApi.Controllers
     [HttpPut("{id:int}")]
     public async Task<ActionResult> Update(int id, [FromForm] ActorCreationDTO actorCreationDTO)
     {
-      bool actorExist = await dbContext.Actors.AnyAsync(x => x.Id == id);
+      Actor actor = await dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
       
-      if (!actorExist)
+      if (actor == null)
       {
         return NotFound($"Don't exist an actor with id {id}. Please check and try again.");
       }
 
-      Actor actor = mapper.Map<Actor>(actorCreationDTO);
-      actor.Id = id;
-      dbContext.Entry(actor).State = EntityState.Modified;
+      actor = mapper.Map(actorCreationDTO, actor);
+
+      if (actorCreationDTO.Picture != null)
+      {
+        using (MemoryStream ms = new MemoryStream())
+        {
+          await actorCreationDTO.Picture.CopyToAsync(ms);
+          byte[] content = ms.ToArray();
+          var extension = Path.GetExtension(actorCreationDTO.Picture.FileName);
+          actor.Picture = await fileStorer.EditFileAsync(content: content, extension: extension,
+            container: containerName, path:actor.Picture, contentType: actorCreationDTO.Picture.ContentType);
+        }
+      }
+
       await dbContext.SaveChangesAsync();
       return NoContent(); 
     }
