@@ -12,7 +12,7 @@ namespace MoviesWebApi.Services
     {
       connectionString = configuration.GetConnectionString("AzureStorage");
     }
-    public async Task DeleteFile(string path, string container)
+    public async Task DeleteFileAsync(string path, string container)
     {
       if (string.IsNullOrEmpty(path))
       {
@@ -26,14 +26,14 @@ namespace MoviesWebApi.Services
       await blob.DeleteIfExistsAsync();
     }
 
-    public async Task<string> EditFile(byte[] content, string extension, 
+    public async Task<string> EditFileAsync(byte[] content, string extension, 
       string container, string path, string contentType)
     {
-      await DeleteFile(path, container);
-      return await SaveFile(content, extension, container, contentType);
+      await DeleteFileAsync(path, container);
+      return await SaveFileAsync(content, extension, container, contentType);
     }
 
-    public async Task<string> SaveFile(byte[] content, string extension, string container, string contentType)
+    public async Task<string> SaveFileAsync(byte[] content, string extension, string container, string contentType)
     {
       BlobContainerClient client = new BlobContainerClient(connectionString, container);
       await client.CreateIfNotExistsAsync();
