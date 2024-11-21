@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoviesWebApi.Services;
+using MoviesWebApi.Services.Impl;
 
 namespace MoviesWebApi
 {
-  public class Startup
+    public class Startup
   {
     public Startup (IConfiguration configuration)
     {
@@ -23,11 +24,14 @@ namespace MoviesWebApi
       services.AddAutoMapper(typeof(Startup));
 
       services.AddTransient<IFileStorer, AzureFileStorer>();
+      services.AddHttpContextAccessor();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
       app.UseHttpsRedirection();
+
+      app.UseStaticFiles();
 
       app.UseRouting();
 
