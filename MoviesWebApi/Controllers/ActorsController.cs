@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesWebApi.DTOs;
@@ -91,6 +92,39 @@ namespace MoviesWebApi.Controllers
 
       await dbContext.SaveChangesAsync();
       return NoContent(); 
+    }
+
+    [HttpPatch("{id:int}")]
+    public async Task<ActionResult> Patch(int id, JsonPatchDocument<ActorPatchDTO> patchDocument)
+    {
+      if(patchDocument == null)
+      {
+        return BadRequest();
+      }
+
+      Actor actorDB = await dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
+
+      if(actorDB == null)
+      {
+        return NotFound();
+      }
+
+      ActorPatchDTO actorPatchDTO = mapper.Map<ActorPatchDTO>(actorDB);
+
+      patchDocument.ApplyTo(actorPatchDTO, ModelState);
+
+      bool isValidModel = TryValidateModel(actorPatchDTO);
+
+      if (!isValidModel)
+      {
+        return BadRequest(ModelState);
+      }
+
+      mapper.Map(actorPatchDTO, actorDB);
+
+      await dbContext.SaveChangesAsync();
+
+      return NoContent();
     }
 
     [HttpDelete("{id:int}")]
