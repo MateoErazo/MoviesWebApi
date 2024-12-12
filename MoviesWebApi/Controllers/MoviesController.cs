@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using MoviesWebApi.DTOs;
 using MoviesWebApi.Entities;
+using MoviesWebApi.Helpers;
 using MoviesWebApi.Services;
 
 namespace MoviesWebApi.Controllers
@@ -27,10 +28,64 @@ namespace MoviesWebApi.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<MovieDTO>>> GetAll()
+    public async Task<ActionResult<MovieIndexDTO>> GetAll()
     {
-      List<Movie> movies = await dbContext.Movies.ToListAsync();
-      return mapper.Map < List<MovieDTO>>(movies);
+      int top = 5;
+      DateTime today = new DateTime(2024,1,1);
+
+      List<Movie> comingSoon = await dbContext.Movies
+        .Where(x => x.ReleaseDate > today)
+        .OrderBy(x => x.ReleaseDate)
+        .Take(top)
+        .ToListAsync();
+
+      List<Movie> inCinemas = await dbContext.Movies
+        .Where(x => x.InCinemas)
+        .OrderBy(x => x.ReleaseDate)
+        .Take (top)
+        .ToListAsync();
+
+      MovieIndexDTO result = new MovieIndexDTO();
+      result.ComingSoon = mapper.Map<List<MovieDTO>>(comingSoon);
+      result.InCinemas = mapper.Map<List<MovieDTO>>(inCinemas);
+
+      return result;
+    }
+
+    [HttpGet("filter")]
+    public async Task<ActionResult<List<MovieDTO>>> Filter([FromQuery] MoviesFilterDTO moviesFilterDTO)
+    {
+      IQueryable<Movie> moviesQueryable = dbContext.Movies.AsQueryable();
+
+      if (!string.IsNullOrEmpty(moviesFilterDTO.Title))
+      {
+        moviesQueryable = moviesQueryable.Where(x => x.Title.Contains(moviesFilterDTO.Title));
+      }
+
+      if (moviesFilterDTO.InCinemas)
+      {
+        moviesQueryable = moviesQueryable.Where(x => x.InCinemas);
+      }
+
+      if (moviesFilterDTO.ComingSoon)
+      {
+        DateTime today = new DateTime(2024,1,1);
+        moviesQueryable = moviesQueryable.Where(x => x.ReleaseDate > today);
+      }
+
+      if (moviesFilterDTO.GenderId != 0)
+      {
+        moviesQueryable = moviesQueryable
+          .Where(x => x.MovieGenders
+            .Select(y => y.GenderId)
+            .Contains(moviesFilterDTO.GenderId));
+      }
+
+      await HttpContext.InsertParametersPagination(moviesQueryable, moviesFilterDTO.Pagination.PageSize);
+
+      List<Movie> movies = await moviesQueryable.Paginate(moviesFilterDTO.Pagination).ToListAsync();
+
+      return mapper.Map<List<MovieDTO>>(movies);
     }
 
     [HttpGet("{id:int}", Name ="getMovieById")]
