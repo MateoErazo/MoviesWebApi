@@ -62,16 +62,31 @@ namespace MoviesWebApi.Controllers
         }
       }
 
+      SetMovieActorsOrder(movie);
       dbContext.Add(movie);
       await dbContext.SaveChangesAsync();
       MovieDTO movieDTO = mapper.Map<MovieDTO>(movie);
-      return CreatedAtRoute("getMovieById", new {id=movieDTO.Id}, movieDTO);
+      return CreatedAtRoute("getMovieById", new { id = movieDTO.Id }, movieDTO);
+    }
+
+    private void SetMovieActorsOrder(Movie movie)
+    {
+      if (movie.MovieActors != null)
+      {
+        for (int i = 0; i < movie.MovieActors.Count; i++)
+        {
+          movie.MovieActors[i].Order = i;
+        }
+      }
     }
 
     [HttpPut("{id:int}")]
     public async Task<ActionResult> Update([FromRoute] int id, [FromForm] MovieCreationDTO movieCreationDTO)
     {
-      Movie movie = await dbContext.Movies.FirstOrDefaultAsync(x => x.Id == id);
+      Movie movie = await dbContext.Movies
+        .Include(x => x.MovieActors)
+        .Include(x => x.MovieGenders)
+        .FirstOrDefaultAsync(x => x.Id == id);
 
       if (movie == null)
       {
@@ -92,6 +107,7 @@ namespace MoviesWebApi.Controllers
         }
       }
 
+      SetMovieActorsOrder(movie);
       await dbContext.SaveChangesAsync();
       return NoContent();
     }
