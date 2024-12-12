@@ -1,4 +1,6 @@
-﻿using MoviesWebApi.Enums;
+﻿using Microsoft.AspNetCore.Mvc;
+using MoviesWebApi.Enums;
+using MoviesWebApi.Helpers;
 using MoviesWebApi.Validations;
 using System.ComponentModel.DataAnnotations;
 
@@ -16,5 +18,9 @@ namespace MoviesWebApi.DTOs
     [FileWeight(maximumFileWeightInMB:4)]
     [TypeFile(TypeFileGroup.Images)]
     public IFormFile Poster { get; set; }
+    [ModelBinder(BinderType = typeof(TypeBinder<List<MovieActorCreationDTO>>))]
+    public List<MovieActorCreationDTO> Actors { get; set; }
+    [ModelBinder(BinderType = typeof(TypeBinder<List<int>>))]
+    public List<int> GendersIds { get; set; }
   }
 }

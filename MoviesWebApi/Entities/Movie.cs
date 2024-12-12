@@ -14,5 +14,8 @@ namespace MoviesWebApi.Entities
     public bool InCinemas { get; set; }
     public DateTime ReleaseDate { get; set; }
     public string Poster { get; set; }
+
+    public List<MovieActor> MovieActors { get; set; }
+    public List<MovieGender> MovieGenders { get; set; }
   }
 }
