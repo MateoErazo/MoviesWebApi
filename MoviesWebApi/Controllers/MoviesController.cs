@@ -89,15 +89,22 @@ namespace MoviesWebApi.Controllers
     }
 
     [HttpGet("{id:int}", Name ="getMovieById")]
-    public async Task<ActionResult<MovieDTO>> GetById([FromRoute] int id) {
-      Movie movie = await dbContext.Movies.FirstOrDefaultAsync(x => x.Id == id);
+    public async Task<ActionResult<MovieWithCompleteDetailDTO>> GetById([FromRoute] int id) {
+      
+      Movie movie = await dbContext.Movies
+        .Include(x => x.MovieActors).ThenInclude(y => y.Actor)
+        .Include(x => x.MovieGenders).ThenInclude(y => y.Gender)
+        .FirstOrDefaultAsync(x => x.Id == id);
 
       if(movie == null)
       {
         return NotFound($"Don't exist a movie with id {id}.");
       }
 
-      return mapper.Map<MovieDTO>(movie);
+      movie.MovieActors = movie.MovieActors.OrderBy(x => x.Order).ToList();
+      movie.MovieGenders = movie.MovieGenders.OrderBy(x => x.Gender.Name).ToList();
+
+      return mapper.Map<MovieWithCompleteDetailDTO>(movie);
     }
 
     [HttpPost]

@@ -25,7 +25,7 @@ namespace MoviesWebApi
 
       services.AddAutoMapper(typeof(Startup));
 
-      services.AddTransient<IFileStorer, AzureFileStorer>();
+      services.AddTransient<IFileStorer, LocalFileStorer>();
       services.AddHttpContextAccessor();
     }
 
