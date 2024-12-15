@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using MoviesWebApi.DTOs;
 using MoviesWebApi.Entities;
 using MoviesWebApi.Helpers;
 using MoviesWebApi.Services;
+using System.Linq.Dynamic.Core;
 
 namespace MoviesWebApi.Controllers
 {
@@ -17,14 +17,16 @@ namespace MoviesWebApi.Controllers
     private readonly ApplicationDbContext dbContext;
     private readonly IMapper mapper;
     private readonly IFileStorer fileStorer;
+    private readonly ILogger<MoviesController> logger;
     private readonly string containerName = "movies";
 
     public MoviesController(ApplicationDbContext dbContext, IMapper mapper,
-      IFileStorer fileStorer)
+      IFileStorer fileStorer, ILogger<MoviesController> logger)
     {
       this.dbContext = dbContext;
       this.mapper = mapper;
       this.fileStorer = fileStorer;
+      this.logger = logger;
     }
 
     [HttpGet]
@@ -79,6 +81,18 @@ namespace MoviesWebApi.Controllers
           .Where(x => x.MovieGenders
             .Select(y => y.GenderId)
             .Contains(moviesFilterDTO.GenderId));
+      }
+
+      if (!string.IsNullOrEmpty(moviesFilterDTO.OrderField))
+      {
+        string orderByType = moviesFilterDTO.AscendingOrder ? "ascending" : "descending";
+        try
+        {
+          moviesQueryable = moviesQueryable.OrderBy($"{moviesFilterDTO.OrderField} {orderByType}");
+        }
+        catch (Exception ex) {
+          logger.LogError(ex.Message,ex);
+        }
       }
 
       await HttpContext.InsertParametersPagination(moviesQueryable, moviesFilterDTO.Pagination.PageSize);

@@ -14,5 +14,7 @@ namespace MoviesWebApi.DTOs
     public bool InCinemas { get; set; }
     public bool ComingSoon { get; set; }
 
+    public string OrderField { get; set; }
+    public bool AscendingOrder { get; set; } = true;
   }
 }
