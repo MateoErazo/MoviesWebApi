@@ -18,5 +18,6 @@ namespace MoviesWebApi.Entities
 
     public List<MovieActor> MovieActors { get; set; }
     public List<MovieGender> MovieGenders { get; set; }
+    public List<MovieTheaterMovie> MovieTheaters { get; set; }
   }
 }

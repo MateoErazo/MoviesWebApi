@@ -14,6 +14,7 @@ namespace MoviesWebApi
     {
       modelBuilder.Entity<MovieActor>().HasKey( x => new {x.MovieId, x.ActorId});
       modelBuilder.Entity<MovieGender>().HasKey(x => new {x.MovieId, x.GenderId});
+      modelBuilder.Entity<MovieTheaterMovie>().HasKey(x => new {x.MovieTheaterId, x.MovieId});
       SeedData(modelBuilder);
       base.OnModelCreating(modelBuilder);
     }
@@ -116,5 +117,7 @@ namespace MoviesWebApi
     public DbSet<Movie> Movies { get; set; }
     public DbSet<MovieActor> MoviesActors { get; set; }
     public DbSet<MovieGender> MoviesGenders { get; set; }
+    public DbSet<MovieTheater> MovieTheaters { get; set; }
+    public DbSet<MovieTheaterMovie> MovieTheatersMovies { get;set; }
   }
 }
