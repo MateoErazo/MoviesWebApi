@@ -11,7 +11,7 @@ namespace MoviesWebApi.Controllers
 {
   [ApiController]
   [Route("api/actors")]
-  public class ActorsController : ControllerBase
+  public class ActorsController : CustomBaseController
   {
     private readonly ApplicationDbContext dbContext;
     private readonly IMapper mapper;
@@ -19,6 +19,7 @@ namespace MoviesWebApi.Controllers
     private readonly string containerName = "actors";
 
     public ActorsController(ApplicationDbContext dbContext, IMapper mapper, IFileStorer fileStorer)
+      :base(dbContext:dbContext,mapper:mapper)
     {
       this.dbContext = dbContext;
       this.mapper = mapper;
@@ -28,26 +29,13 @@ namespace MoviesWebApi.Controllers
     [HttpGet(Name = "getAllActors")]
     public async Task<ActionResult<List<ActorDTO>>> GetAll([FromQuery] PaginationDTO paginationDTO)
     {
-      var queryable = dbContext.Actors.AsQueryable();
-      await HttpContext.InsertParametersPagination(queryable, paginationDTO.PageSize);
-
-      List<Actor> actors = await queryable
-        .Paginate(paginationDTO)
-        .ToListAsync();
-
-      return mapper.Map<List<ActorDTO>>(actors);
+      return await Get<Actor, ActorDTO>(paginationDTO);
     }
 
     [HttpGet("{id:int}", Name = "getActorById")]
     public async Task<ActionResult<ActorDTO>> GetById(int id)
     {
-      Actor actor = await dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
-
-      if (actor == null) {
-        return NotFound($"Don't exist an actor with id {id}. Please check and try again.");
-      }
-
-      return mapper.Map<ActorDTO>(actor);
+      return await GetById<Actor, ActorDTO>(id);
     }
 
     [HttpPost(Name = "createActor")]
@@ -104,49 +92,13 @@ namespace MoviesWebApi.Controllers
     [HttpPatch("{id:int}")]
     public async Task<ActionResult> Patch(int id, JsonPatchDocument<ActorPatchDTO> patchDocument)
     {
-      if(patchDocument == null)
-      {
-        return BadRequest();
-      }
-
-      Actor actorDB = await dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
-
-      if(actorDB == null)
-      {
-        return NotFound();
-      }
-
-      ActorPatchDTO actorPatchDTO = mapper.Map<ActorPatchDTO>(actorDB);
-
-      patchDocument.ApplyTo(actorPatchDTO, ModelState);
-
-      bool isValidModel = TryValidateModel(actorPatchDTO);
-
-      if (!isValidModel)
-      {
-        return BadRequest(ModelState);
-      }
-
-      mapper.Map(actorPatchDTO, actorDB);
-
-      await dbContext.SaveChangesAsync();
-
-      return NoContent();
+      return await Patch<Actor, ActorPatchDTO>(id, patchDocument);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
-      bool actorExist = await dbContext.Actors.AnyAsync(x => x.Id == id);
-
-      if (!actorExist)
-      {
-        return NotFound($"Don't exist an actor with id {id}. Please check and try again.");
-      }
-
-      dbContext.Remove(new Actor { Id = id});
-      await dbContext.SaveChangesAsync();
-      return NoContent();
+      return await Delete<Actor>(id);
     }
 
   }

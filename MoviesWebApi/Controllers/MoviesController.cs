@@ -12,7 +12,7 @@ namespace MoviesWebApi.Controllers
 {
   [ApiController]
   [Route("api/movies")]
-  public class MoviesController:ControllerBase
+  public class MoviesController:CustomBaseController
   {
     private readonly ApplicationDbContext dbContext;
     private readonly IMapper mapper;
@@ -22,6 +22,7 @@ namespace MoviesWebApi.Controllers
 
     public MoviesController(ApplicationDbContext dbContext, IMapper mapper,
       IFileStorer fileStorer, ILogger<MoviesController> logger)
+      :base(dbContext:dbContext,mapper:mapper)
     {
       this.dbContext = dbContext;
       this.mapper = mapper;
@@ -191,49 +192,13 @@ namespace MoviesWebApi.Controllers
     [HttpPatch("{id:int}")]
     public async Task<ActionResult> Patch(int id, JsonPatchDocument<MoviePatchDTO> patchDocument)
     {
-      if (patchDocument == null)
-      {
-        return BadRequest();
-      }
-
-      Movie movieDB = await dbContext.Movies.FirstOrDefaultAsync(x => x.Id == id);
-
-      if (movieDB == null)
-      {
-        return NotFound();
-      }
-
-      MoviePatchDTO moviePatchDTO = mapper.Map<MoviePatchDTO>(movieDB);
-
-      patchDocument.ApplyTo(moviePatchDTO, ModelState);
-
-      bool isValidModel = TryValidateModel(moviePatchDTO);
-
-      if (!isValidModel)
-      {
-        return BadRequest(ModelState);
-      }
-
-      mapper.Map(moviePatchDTO, movieDB);
-
-      await dbContext.SaveChangesAsync();
-
-      return NoContent();
+      return await Patch<Movie,MoviePatchDTO>(id, patchDocument);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
-      bool movieExist = await dbContext.Movies.AnyAsync(x => x.Id == id);
-
-      if (!movieExist)
-      {
-        return NotFound($"Don't exist a movie with id {id}. Please check and try again.");
-      }
-
-      dbContext.Remove(new Movie { Id = id });
-      await dbContext.SaveChangesAsync();
-      return NoContent();
+      return await Delete<Movie>(id);
     }
   }
 }
