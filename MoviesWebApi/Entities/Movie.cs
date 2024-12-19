@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using MoviesWebApi.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoviesWebApi.Entities
 {
-  public class Movie
+  public class Movie:IId
   {
     public int Id { get; set; }
     [Required]
