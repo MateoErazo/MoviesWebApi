@@ -1,4 +1,5 @@
 ﻿using MoviesWebApi.Interfaces;
+using NetTopologySuite.Geometries;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoviesWebApi.Entities
@@ -9,6 +10,7 @@ namespace MoviesWebApi.Entities
     [Required]
     [StringLength(120)]
     public string Name { get; set; }
+    public Point Location { get; set; }
    
     public List<MovieTheaterMovie> Movies { get; set; }
   }

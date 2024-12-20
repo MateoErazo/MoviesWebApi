@@ -2,14 +2,30 @@
 using Microsoft.Identity.Client;
 using MoviesWebApi.DTOs;
 using MoviesWebApi.Entities;
+using NetTopologySuite.Geometries;
 
 namespace MoviesWebApi.Helpers
 {
   public class AutoMapperProfiles:Profile
   {
-    public AutoMapperProfiles() {
-      CreateMap<MovieTheater, MovieTheaterDTO>().ReverseMap();
-      CreateMap<MovieTheaterCreationDTO, MovieTheater>();
+    public AutoMapperProfiles(GeometryFactory geometryFactory) {
+      CreateMap<MovieTheater, MovieTheaterDTO>()
+        .ForMember(x => x.Latitude, x=> x.MapFrom(y => y.Location.Y))
+        .ForMember(x => x.Longitude, x=> x.MapFrom(y => y.Location.X));
+
+      CreateMap<MovieTheaterDTO, MovieTheater>()
+        .ForMember(x => x.Location, x => 
+         x.MapFrom(y => geometryFactory
+          .CreatePoint(
+            new Coordinate(y.Longitude, y.Latitude))
+          ));
+
+      CreateMap<MovieTheaterCreationDTO, MovieTheater>()
+        .ForMember(x => x.Location, x =>
+         x.MapFrom(y => geometryFactory
+          .CreatePoint(
+            new Coordinate(y.Longitude, y.Latitude))
+          )); ;
 
       CreateMap<Gender, GenderDTO>().ReverseMap();
       CreateMap<GenderCreationDTO, Gender>();
