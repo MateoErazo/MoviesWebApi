@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MoviesWebApi.Entities;
+using System.Security.Claims;
 
 namespace MoviesWebApi
 {
-  public class ApplicationDbContext : DbContext
+  public class ApplicationDbContext : IdentityDbContext
   {
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {
@@ -21,6 +23,41 @@ namespace MoviesWebApi
 
     private void SeedData(ModelBuilder modelBuilder)
     {
+      string roleAdminId = "f2b68750-1e26-4ead-9999-3646e9bc978b";
+      string userAdminId = "29dba010-2f36-4a69-86d9-9e5e795d507c";
+
+      IdentityRole roleAdmin = new IdentityRole()
+      {
+        Id = roleAdminId,
+        Name = "Admin",
+        NormalizedName = "Admin"
+      };
+
+      var passwordHasher = new PasswordHasher<IdentityUser>();
+      var userName = "rayoazul@gmail.com";
+
+      var userAdmin = new IdentityUser()
+      {
+        Id = userAdminId,
+        UserName = userName,
+        NormalizedUserName = userName,
+        Email = userName,
+        NormalizedEmail = userName,
+        PasswordHash = passwordHasher.HashPassword(null,"Aa!123456")
+      };
+
+      //modelBuilder.Entity<IdentityUser>().HasData(userAdmin);
+      //modelBuilder.Entity<IdentityRole>().HasData(roleAdmin);
+      //modelBuilder.Entity<IdentityUserClaim<string>>()
+      //  .HasData(new IdentityUserClaim<string>()
+      //  {
+      //    Id = 1,
+      //    ClaimType = ClaimTypes.Role,
+      //    UserId = userAdminId,
+      //    ClaimValue = "Admin"
+      //  });
+
+
 
       var aventura = new Gender() { Id = 4, Name = "Adventure" };
       var animation = new Gender() { Id = 5, Name = "Animation" };
