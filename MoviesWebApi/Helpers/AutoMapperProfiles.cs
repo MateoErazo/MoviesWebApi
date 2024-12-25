@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Identity.Client;
 using MoviesWebApi.DTOs;
 using MoviesWebApi.Entities;
@@ -9,6 +10,7 @@ namespace MoviesWebApi.Helpers
   public class AutoMapperProfiles:Profile
   {
     public AutoMapperProfiles(GeometryFactory geometryFactory) {
+      CreateMap<IdentityUser, UserDTO>();
       CreateMap<MovieTheater, MovieTheaterDTO>()
         .ForMember(x => x.Latitude, x=> x.MapFrom(y => y.Location.Y))
         .ForMember(x => x.Longitude, x=> x.MapFrom(y => y.Location.X));

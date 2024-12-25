@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MoviesWebApi.Helpers;
 using MoviesWebApi.Services;
 using MoviesWebApi.Services.Impl;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using System.Text;
 
 namespace MoviesWebApi
 {
@@ -41,6 +45,24 @@ namespace MoviesWebApi
 
       services.AddTransient<IFileStorer, LocalFileStorer>();
       services.AddHttpContextAccessor();
+
+      services.AddIdentity<IdentityUser,IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+          options.TokenValidationParameters = new TokenValidationParameters
+          {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["jwt:key"])),
+            ClockSkew = TimeSpan.Zero
+          };
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
