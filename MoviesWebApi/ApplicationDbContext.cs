@@ -156,5 +156,6 @@ namespace MoviesWebApi
     public DbSet<MovieGender> MoviesGenders { get; set; }
     public DbSet<MovieTheater> MovieTheaters { get; set; }
     public DbSet<MovieTheaterMovie> MovieTheatersMovies { get;set; }
+    public DbSet<Review> Reviews { get; set; }
   }
 }
