@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MoviesWebApi.Filters;
 using MoviesWebApi.Helpers;
 using MoviesWebApi.Services;
 using MoviesWebApi.Services.Impl;
@@ -63,6 +64,8 @@ namespace MoviesWebApi
             ClockSkew = TimeSpan.Zero
           };
         });
+
+      services.AddScoped<MovieExistAttribute>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
