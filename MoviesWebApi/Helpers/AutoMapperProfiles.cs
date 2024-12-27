@@ -10,6 +10,11 @@ namespace MoviesWebApi.Helpers
   public class AutoMapperProfiles:Profile
   {
     public AutoMapperProfiles(GeometryFactory geometryFactory) {
+      CreateMap<Review, ReviewDTO>()
+        .ForMember(x => x.UserName, options => options.MapFrom(x => x.User.UserName));
+      CreateMap<ReviewDTO, Review>();
+      CreateMap<ReviewCreationDTO, Review>();
+
       CreateMap<IdentityUser, UserDTO>();
       CreateMap<MovieTheater, MovieTheaterDTO>()
         .ForMember(x => x.Latitude, x=> x.MapFrom(y => y.Location.Y))
