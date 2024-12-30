@@ -72,7 +72,7 @@ namespace MoviesWebApi.Controllers
 
       if (moviesFilterDTO.ComingSoon)
       {
-        DateTime today = new DateTime(2024,1,1);
+        DateTime today = DateTime.Today;
         moviesQueryable = moviesQueryable.Where(x => x.ReleaseDate > today);
       }
 
