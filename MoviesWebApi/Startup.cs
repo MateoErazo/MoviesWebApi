@@ -35,13 +35,14 @@ namespace MoviesWebApi
       
       services.AddControllers()
         .AddNewtonsoftJson();
-
+/*
+ * This code was commented meanwhile I make integration tests with a memory database provider
       services.AddDbContext<ApplicationDbContext>(options =>
       {
         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
           sqlServerOptions => sqlServerOptions.UseNetTopologySuite());
       });
-
+*/
       services.AddAutoMapper(typeof(Startup));
 
       services.AddTransient<IFileStorer, LocalFileStorer>();
