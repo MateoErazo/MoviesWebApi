@@ -33,16 +33,19 @@ namespace MoviesWebApi
         }).CreateMapper()
       );
       
-      services.AddControllers()
+      services.AddControllers(options =>
+      {
+        options.Filters.Add(typeof(GlobalExceptionAttribute));
+      })
         .AddNewtonsoftJson();
-/*
- * This code was commented meanwhile I make integration tests with a memory database provider
+
+
       services.AddDbContext<ApplicationDbContext>(options =>
       {
-        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
-          sqlServerOptions => sqlServerOptions.UseNetTopologySuite());
+        options.UseSqlServer(Configuration.GetConnectionString("defaultconnection"),
+        sqlserveroptions => sqlserveroptions.UseNetTopologySuite());
       });
-*/
+
       services.AddAutoMapper(typeof(Startup));
 
       services.AddTransient<IFileStorer, LocalFileStorer>();
